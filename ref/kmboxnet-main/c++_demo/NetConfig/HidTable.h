@@ -1,234 +1,235 @@
 #ifndef __keyboard__table__
 #define __keyboard__table__
-#define KEY_NONE                               0x00
-#define KEY_ERRORROLLOVER                      0x01
-#define KEY_POSTFAIL                           0x02
-#define KEY_ERRORUNDEFINED                     0x03
-#define KEY_A                                  0x04
-#define KEY_B                                  0x05
-#define KEY_C                                  0x06
-#define KEY_D                                  0x07 
-#define KEY_E                                  0x08
-#define KEY_F                                  0x09
-#define KEY_G                                  0x0A
-#define KEY_H                                  0x0B
-#define KEY_I                                  0x0C
-#define KEY_J                                  0x0D
-#define KEY_K                                  0x0E
-#define KEY_L                                  0x0F
-#define KEY_M                                  0x10
-#define KEY_N                                  0x11
-#define KEY_O                                  0x12
-#define KEY_P                                  0x13
-#define KEY_Q                                  0x14
-#define KEY_R                                  0x15
-#define KEY_S                                  0x16
-#define KEY_T                                  0x17
-#define KEY_U                                  0x18
-#define KEY_V                                  0x19
-#define KEY_W                                  0x1A
-#define KEY_X                                  0x1B
-#define KEY_Y                                  0x1C
-#define KEY_Z                                  0x1D
-#define KEY_1_EXCLAMATION_MARK                 0x1E
-#define KEY_2_AT                               0x1F
-#define KEY_3_NUMBER_SIGN                      0x20
-#define KEY_4_DOLLAR                           0x21
-#define KEY_5_PERCENT                          0x22
-#define KEY_6_CARET                            0x23
-#define KEY_7_AMPERSAND                        0x24
-#define KEY_8_ASTERISK                         0x25
-#define KEY_9_OPARENTHESIS                     0x26
-#define KEY_0_CPARENTHESIS                     0x27
-#define KEY_ENTER                              0x28
-#define KEY_ESCAPE                             0x29
-#define KEY_BACKSPACE                          0x2A
-#define KEY_TAB                                0x2B
-#define KEY_SPACEBAR                           0x2C
-#define KEY_MINUS_UNDERSCORE                   0x2D
-#define KEY_EQUAL_PLUS                         0x2E
-#define KEY_OBRACKET_AND_OBRACE                0x2F
-#define KEY_CBRACKET_AND_CBRACE                0x30
-#define KEY_BACKSLASH_VERTICAL_BAR             0x31
-#define KEY_NONUS_NUMBER_SIGN_TILDE            0x32
-#define KEY_SEMICOLON_COLON                    0x33
-#define KEY_SINGLE_AND_DOUBLE_QUOTE            0x34
-#define KEY_GRAVE ACCENT AND TILDE             0x35
-#define KEY_COMMA_AND_LESS                     0x36
-#define KEY_DOT_GREATER                        0x37
-#define KEY_SLASH_QUESTION                     0x38
-#define KEY_CAPS LOCK                          0x39
-#define KEY_F1                                 0x3A
-#define KEY_F2                                 0x3B
-#define KEY_F3                                 0x3C
-#define KEY_F4                                 0x3D
-#define KEY_F5                                 0x3E
-#define KEY_F6                                 0x3F
-#define KEY_F7                                 0x40
-#define KEY_F8                                 0x41
-#define KEY_F9                                 0x42
-#define KEY_F10                                0x43
-#define KEY_F11                                0x44
-#define KEY_F12                                0x45
-#define KEY_PRINTSCREEN                        0x46
-#define KEY_SCROLL LOCK                        0x47
-#define KEY_PAUSE                              0x48
-#define KEY_INSERT                             0x49
-#define KEY_HOME                               0x4A
-#define KEY_PAGEUP                             0x4B
-#define KEY_DELETE                             0x4C
-#define KEY_END1                               0x4D
-#define KEY_PAGEDOWN                           0x4E
-#define KEY_RIGHTARROW                         0x4F
-#define KEY_LEFTARROW                          0x50
-#define KEY_DOWNARROW                          0x51
-#define KEY_UPARROW                            0x52
-#define KEY_KEYPAD_NUM_LOCK_AND_CLEAR          0x53
-#define KEY_KEYPAD_SLASH                       0x54
-#define KEY_KEYPAD_ASTERIKS                    0x55
-#define KEY_KEYPAD_MINUS                       0x56
-#define KEY_KEYPAD_PLUS                        0x57
-#define KEY_KEYPAD_ENTER                       0x58
-#define KEY_KEYPAD_1_END                       0x59
-#define KEY_KEYPAD_2_DOWN_ARROW                0x5A
-#define KEY_KEYPAD_3_PAGEDN                    0x5B
-#define KEY_KEYPAD_4_LEFT_ARROW                0x5C
-#define KEY_KEYPAD_5                           0x5D
-#define KEY_KEYPAD_6_RIGHT_ARROW               0x5E
-#define KEY_KEYPAD_7_HOME                      0x5F
-#define KEY_KEYPAD_8_UP_ARROW                  0x60
-#define KEY_KEYPAD_9_PAGEUP                    0x61
-#define KEY_KEYPAD_0_INSERT                    0x62
-#define KEY_KEYPAD_DECIMAL_SEPARATOR_DELETE    0x63
-#define KEY_NONUS_BACK_SLASH_VERTICAL_BAR      0x64
-#define KEY_APPLICATION                        0x65
-#define KEY_POWER                              0x66
-#define KEY_KEYPAD_EQUAL                       0x67
-#define KEY_F13                                0x68
-#define KEY_F14                                0x69
-#define KEY_F15                                0x6A
-#define KEY_F16                                0x6B
-#define KEY_F17                                0x6C
-#define KEY_F18                                0x6D
-#define KEY_F19                                0x6E
-#define KEY_F20                                0x6F
-#define KEY_F21                                0x70
-#define KEY_F22                                0x71
-#define KEY_F23                                0x72
-#define KEY_F24                                0x73
-#define KEY_EXECUTE                            0x74
-#define KEY_HELP                               0x75
-#define KEY_MENU                               0x76
-#define KEY_SELECT                             0x77
-#define KEY_STOP                               0x78
-#define KEY_AGAIN                              0x79
-#define KEY_UNDO                               0x7A
-#define KEY_CUT                                0x7B
-#define KEY_COPY                               0x7C
-#define KEY_PASTE                              0x7D
-#define KEY_FIND                               0x7E
-#define KEY_MUTE                               0x7F
-#define KEY_VOLUME_UP                          0x80
-#define KEY_VOLUME_DOWN                        0x81
-#define KEY_LOCKING_CAPS_LOCK                  0x82
-#define KEY_LOCKING_NUM_LOCK                   0x83
-#define KEY_LOCKING_SCROLL_LOCK                0x84
-#define KEY_KEYPAD_COMMA                       0x85
-#define KEY_KEYPAD_EQUAL_SIGN                  0x86
-#define KEY_INTERNATIONAL1                     0x87
-#define KEY_INTERNATIONAL2                     0x88
-#define KEY_INTERNATIONAL3                     0x89
-#define KEY_INTERNATIONAL4                     0x8A
-#define KEY_INTERNATIONAL5                     0x8B
-#define KEY_INTERNATIONAL6                     0x8C
-#define KEY_INTERNATIONAL7                     0x8D
-#define KEY_INTERNATIONAL8                     0x8E
-#define KEY_INTERNATIONAL9                     0x8F
-#define KEY_LANG1                              0x90
-#define KEY_LANG2                              0x91
-#define KEY_LANG3                              0x92
-#define KEY_LANG4                              0x93
-#define KEY_LANG5                              0x94
-#define KEY_LANG6                              0x95
-#define KEY_LANG7                              0x96
-#define KEY_LANG8                              0x97
-#define KEY_LANG9                              0x98
-#define KEY_ALTERNATE_ERASE                    0x99
-#define KEY_SYSREQ                             0x9A
-#define KEY_CANCEL                             0x9B
-#define KEY_CLEAR                              0x9C
-#define KEY_PRIOR                              0x9D
-#define KEY_RETURN                             0x9E
-#define KEY_SEPARATOR                          0x9F
-#define KEY_OUT                                0xA0
-#define KEY_OPER                               0xA1
-#define KEY_CLEAR_AGAIN                        0xA2
-#define KEY_CRSEL                              0xA3
-#define KEY_EXSEL                              0xA4
-#define KEY_KEYPAD_00                          0xB0
-#define KEY_KEYPAD_000                         0xB1
-#define KEY_THOUSANDS_SEPARATOR                0xB2
-#define KEY_DECIMAL_SEPARATOR                  0xB3
-#define KEY_CURRENCY_UNIT                      0xB4
-#define KEY_CURRENCY_SUB_UNIT                  0xB5
-#define KEY_KEYPAD_OPARENTHESIS                0xB6
-#define KEY_KEYPAD_CPARENTHESIS                0xB7
-#define KEY_KEYPAD_OBRACE                      0xB8
-#define KEY_KEYPAD_CBRACE                      0xB9
-#define KEY_KEYPAD_TAB                         0xBA
-#define KEY_KEYPAD_BACKSPACE                   0xBB
-#define KEY_KEYPAD_A                           0xBC
-#define KEY_KEYPAD_B                           0xBD
-#define KEY_KEYPAD_C                           0xBE
-#define KEY_KEYPAD_D                           0xBF
-#define KEY_KEYPAD_E                           0xC0
-#define KEY_KEYPAD_F                           0xC1
-#define KEY_KEYPAD_XOR                         0xC2
-#define KEY_KEYPAD_CARET                       0xC3
-#define KEY_KEYPAD_PERCENT                     0xC4
-#define KEY_KEYPAD_LESS                        0xC5
-#define KEY_KEYPAD_GREATER                     0xC6
-#define KEY_KEYPAD_AMPERSAND                   0xC7
-#define KEY_KEYPAD_LOGICAL_AND                 0xC8
-#define KEY_KEYPAD_VERTICAL_BAR                0xC9
-#define KEY_KEYPAD_LOGIACL_OR                  0xCA
-#define KEY_KEYPAD_COLON                       0xCB
-#define KEY_KEYPAD_NUMBER_SIGN                 0xCC
-#define KEY_KEYPAD_SPACE                       0xCD
-#define KEY_KEYPAD_AT                          0xCE
-#define KEY_KEYPAD_EXCLAMATION_MARK            0xCF
-#define KEY_KEYPAD_MEMORY_STORE                0xD0
-#define KEY_KEYPAD_MEMORY_RECALL               0xD1
-#define KEY_KEYPAD_MEMORY_CLEAR                0xD2
-#define KEY_KEYPAD_MEMORY_ADD                  0xD3
-#define KEY_KEYPAD_MEMORY_SUBTRACT             0xD4
-#define KEY_KEYPAD_MEMORY_MULTIPLY             0xD5
-#define KEY_KEYPAD_MEMORY_DIVIDE               0xD6
-#define KEY_KEYPAD_PLUSMINUS                   0xD7
-#define KEY_KEYPAD_CLEAR                       0xD8
-#define KEY_KEYPAD_CLEAR_ENTRY                 0xD9
-#define KEY_KEYPAD_BINARY                      0xDA
-#define KEY_KEYPAD_OCTAL                       0xDB
-#define KEY_KEYPAD_DECIMAL                     0xDC
-#define KEY_KEYPAD_HEXADECIMAL                 0xDD
-#define KEY_LEFTCONTROL                        0xE0
-#define KEY_LEFTSHIFT                          0xE1
-#define KEY_LEFTALT                            0xE2
-#define KEY_LEFT_GUI                           0xE3
-#define KEY_RIGHTCONTROL                       0xE4
-#define KEY_RIGHTSHIFT                         0xE5
-#define KEY_RIGHTALT                           0xE6
-#define KEY_RIGHT_GUI                          0xE7
 
+// 键盘键值定义
+#define KEY_NONE                               0x00 // 无键按下
+#define KEY_ERRORROLLOVER                      0x01 // 错误回滚
+#define KEY_POSTFAIL                           0x02 // 发布失败
+#define KEY_ERRORUNDEFINED                     0x03 // 未定义的错误
+#define KEY_A                                  0x04 // 键A
+#define KEY_B                                  0x05 // 键B
+#define KEY_C                                  0x06 // 键C
+#define KEY_D                                  0x07 // 键D
+#define KEY_E                                  0x08 // 键E
+#define KEY_F                                  0x09 // 键F
+#define KEY_G                                  0x0A // 键G
+#define KEY_H                                  0x0B // 键H
+#define KEY_I                                  0x0C // 键I
+#define KEY_J                                  0x0D // 键J
+#define KEY_K                                  0x0E // 键K
+#define KEY_L                                  0x0F // 键L
+#define KEY_M                                  0x10 // 键M
+#define KEY_N                                  0x11 // 键N
+#define KEY_O                                  0x12 // 键O
+#define KEY_P                                  0x13 // 键P
+#define KEY_Q                                  0x14 // 键Q
+#define KEY_R                                  0x15 // 键R
+#define KEY_S                                  0x16 // 键S
+#define KEY_T                                  0x17 // 键T
+#define KEY_U                                  0x18 // 键U
+#define KEY_V                                  0x19 // 键V
+#define KEY_W                                  0x1A // 键W
+#define KEY_X                                  0x1B // 键X
+#define KEY_Y                                  0x1C // 键Y
+#define KEY_Z                                  0x1D // 键Z
+#define KEY_1_EXCLAMATION_MARK                 0x1E // 键1和感叹号
+#define KEY_2_AT                               0x1F // 键2和@
+#define KEY_3_NUMBER_SIGN                      0x20 // 键3和#
+#define KEY_4_DOLLAR                           0x21 // 键4和$
+#define KEY_5_PERCENT                          0x22 // 键5和%
+#define KEY_6_CARET                            0x23 // 键6和^
+#define KEY_7_AMPERSAND                        0x24 // 键7和&
+#define KEY_8_ASTERISK                         0x25 // 键8和*
+#define KEY_9_OPARENTHESIS                     0x26 // 键9和(
+#define KEY_0_CPARENTHESIS                     0x27 // 键0和)
+#define KEY_ENTER                              0x28 // 回车键
+#define KEY_ESCAPE                             0x29 // 逃逸键
+#define KEY_BACKSPACE                          0x2A // 退格键
+#define KEY_TAB                                0x2B // 制表键
+#define KEY_SPACEBAR                           0x2C // 空格键
+#define KEY_MINUS_UNDERSCORE                   0x2D // 减号和下划线
+#define KEY_EQUAL_PLUS                         0x2E // 等号和加号
+#define KEY_OBRACKET_AND_OBRACE                0x2F // 左方括号和左花括号
+#define KEY_CBRACKET_AND_CBRACE                0x30 // 右方括号和右花括号
+#define KEY_BACKSLASH_VERTICAL_BAR             0x31 // 反斜杠和竖线
+#define KEY_NONUS_NUMBER_SIGN_TILDE            0x32 // 非美国键盘的数字键和波浪号
+#define KEY_SEMICOLON_COLON                    0x33 // 分号和冒号
+#define KEY_SINGLE_AND_DOUBLE_QUOTE            0x34 // 单引号和双引号
+#define KEY_GRAVE_ACCENT_AND_TILDE             0x35 // 重音符和波浪号
+#define KEY_COMMA_AND_LESS                     0x36 // 逗号和小于号
+#define KEY_DOT_GREATER                        0x37 // 点和大于号
+#define KEY_SLASH_QUESTION                     0x38 // 斜杠和问号
+#define KEY_CAPS_LOCK                          0x39 // 大写锁定键
+#define KEY_F1                                 0x3A // F1键
+#define KEY_F2                                 0x3B // F2键
+#define KEY_F3                                 0x3C // F3键
+#define KEY_F4                                 0x3D // F4键
+#define KEY_F5                                 0x3E // F5键
+#define KEY_F6                                 0x3F // F6键
+#define KEY_F7                                 0x40 // F7键
+#define KEY_F8                                 0x41 // F8键
+#define KEY_F9                                 0x42 // F9键
+#define KEY_F10                                0x43 // F10键
+#define KEY_F11                                0x44 // F11键
+#define KEY_F12                                0x45 // F12键
+#define KEY_PRINTSCREEN                        0x46 // 打印屏幕键
+#define KEY_SCROLL_LOCK                        0x47 // 滚动锁定键
+#define KEY_PAUSE                              0x48 // 暂停键
+#define KEY_INSERT                             0x49 // 插入键
+#define KEY_HOME                               0x4A // 主页键
+#define KEY_PAGEUP                             0x4B // 上一页键
+#define KEY_DELETE                             0x4C // 删除键
+#define KEY_END1                               0x4D // 结束键
+#define KEY_PAGEDOWN                           0x4E // 下一页键
+#define KEY_RIGHTARROW                         0x4F // 右箭头键
+#define KEY_LEFTARROW                          0x50 // 左箭头键
+#define KEY_DOWNARROW                          0x51 // 下箭头键
+#define KEY_UPARROW                            0x52 // 上箭头键
+#define KEY_KEYPAD_NUM_LOCK_AND_CLEAR          0x53 // 小键盘数字锁定和清除键
+#define KEY_KEYPAD_SLASH                       0x54 // 小键盘斜杠键
+#define KEY_KEYPAD_ASTERIKS                    0x55 // 小键盘星号键
+#define KEY_KEYPAD_MINUS                       0x56 // 小键盘减号键
+#define KEY_KEYPAD_PLUS                        0x57 // 小键盘加号键
+#define KEY_KEYPAD_ENTER                       0x58 // 小键盘回车键
+#define KEY_KEYPAD_1_END                       0x59 // 小键盘1和结尾键
+#define KEY_KEYPAD_2_DOWN_ARROW                0x5A // 小键盘2和下箭头键
+#define KEY_KEYPAD_3_PAGEDN                    0x5B // 小键盘3和下一页键
+#define KEY_KEYPAD_4_LEFT_ARROW                0x5C // 小键盘4和左箭头键
+#define KEY_KEYPAD_5                           0x5D // 小键盘5键
+#define KEY_KEYPAD_6_RIGHT_ARROW               0x5E // 小键盘6和右箭头键
+#define KEY_KEYPAD_7_HOME                      0x5F // 小键盘7和主页键
+#define KEY_KEYPAD_8_UP_ARROW                  0x60 // 小键盘8和上箭头键
+#define KEY_KEYPAD_9_PAGEUP                    0x61 // 小键盘9和上一页键
+#define KEY_KEYPAD_0_INSERT                    0x62 // 小键盘0和插入键
+#define KEY_KEYPAD_DECIMAL_SEPARATOR_DELETE    0x63 // 小键盘小数点分隔符和删除键
+#define KEY_NONUS_BACK_SLASH_VERTICAL_BAR      0x64 // 非美国键盘的反斜杠和竖线键
+#define KEY_APPLICATION                        0x65 // 应用键
+#define KEY_POWER                              0x66 // 电源键
+#define KEY_KEYPAD_EQUAL                       0x67 // 小键盘等号键
+#define KEY_F13                                0x68 // F13键
+#define KEY_F14                                0x69 // F14键
+#define KEY_F15                                0x6A // F15键
+#define KEY_F16                                0x6B // F16键
+#define KEY_F17                                0x6C // F17键
+#define KEY_F18                                0x6D // F18键
+#define KEY_F19                                0x6E // F19键
+#define KEY_F20                                0x6F // F20键
+#define KEY_F21                                0x70 // F21键
+#define KEY_F22                                0x71 // F22键
+#define KEY_F23                                0x72 // F23键
+#define KEY_F24                                0x73 // F24键
+#define KEY_EXECUTE                            0x74 // 执行键
+#define KEY_HELP                               0x75 // 帮助键
+#define KEY_MENU                               0x76 // 菜单键
+#define KEY_SELECT                             0x77 // 选择键
+#define KEY_STOP                               0x78 // 停止键
+#define KEY_AGAIN                              0x79 // 再次键
+#define KEY_UNDO                               0x7A // 撤销键
+#define KEY_CUT                                0x7B // 剪切键
+#define KEY_COPY                               0x7C // 复制键
+#define KEY_PASTE                              0x7D // 粘贴键
+#define KEY_FIND                               0x7E // 查找键
+#define KEY_MUTE                               0x7F // 静音键
+#define KEY_VOLUME_UP                          0x80 // 音量上键
+#define KEY_VOLUME_DOWN                        0x81 // 音量下键
+#define KEY_LOCKING_CAPS_LOCK                  0x82 // 锁定大写键
+#define KEY_LOCKING_NUM_LOCK                   0x83 // 锁定数字键
+#define KEY_LOCKING_SCROLL_LOCK                0x84 // 锁定滚动键
+#define KEY_KEYPAD_COMMA                       0x85 // 小键盘逗号键
+#define KEY_KEYPAD_EQUAL_SIGN                  0x86 // 小键盘等号键
+#define KEY_INTERNATIONAL1                     0x87 // 国际键1
+#define KEY_INTERNATIONAL2                     0x88 // 国际键2
+#define KEY_INTERNATIONAL3                     0x89 // 国际键3
+#define KEY_INTERNATIONAL4                     0x8A // 国际键4
+#define KEY_INTERNATIONAL5                     0x8B // 国际键5
+#define KEY_INTERNATIONAL6                     0x8C // 国际键6
+#define KEY_INTERNATIONAL7                     0x8D // 国际键7
+#define KEY_INTERNATIONAL8                     0x8E // 国际键8
+#define KEY_INTERNATIONAL9                     0x8F // 国际键9
+#define KEY_LANG1                              0x90 // 语言键1
+#define KEY_LANG2                              0x91 // 语言键2
+#define KEY_LANG3                              0x92 // 语言键3
+#define KEY_LANG4                              0x93 // 语言键4
+#define KEY_LANG5                              0x94 // 语言键5
+#define KEY_LANG6                              0x95 // 语言键6
+#define KEY_LANG7                              0x96 // 语言键7
+#define KEY_LANG8                              0x97 // 语言键8
+#define KEY_LANG9                              0x98 // 语言键9
+#define KEY_ALTERNATE_ERASE                    0x99 // 替代删除键
+#define KEY_SYSREQ                             0x9A // 系统请求键
+#define KEY_CANCEL                             0x9B // 取消键
+#define KEY_CLEAR                              0x9C // 清除键
+#define KEY_PRIOR                              0x9D // 前一页键
+#define KEY_RETURN                             0x9E // 回车键
+#define KEY_SEPARATOR                          0x9F // 分隔符键
+#define KEY_OUT                                0xA0 // 输出键
+#define KEY_OPER                               0xA1 // 操作键
+#define KEY_CLEAR_AGAIN                        0xA2 // 再次清除键
+#define KEY_CRSEL                              0xA3 // 光标选择键
+#define KEY_EXSEL                              0xA4 // 扩展选择键
+#define KEY_KEYPAD_00                          0xB0 // 小键盘00键
+#define KEY_KEYPAD_000                         0xB1 // 小键盘000键
+#define KEY_THOUSANDS_SEPARATOR                0xB2 // 千分符键
+#define KEY_DECIMAL_SEPARATOR                  0xB3 // 小数点分隔符键
+#define KEY_CURRENCY_UNIT                      0xB4 // 货币单位键
+#define KEY_CURRENCY_SUB_UNIT                  0xB5 // 货币子单位键
+#define KEY_KEYPAD_OPARENTHESIS                0xB6 // 小键盘左括号键
+#define KEY_KEYPAD_CPARENTHESIS                0xB7 // 小键盘右括号键
+#define KEY_KEYPAD_OBRACE                      0xB8 // 小键盘左花括号键
+#define KEY_KEYPAD_CBRACE                      0xB9 // 小键盘右花括号键
+#define KEY_KEYPAD_TAB                         0xBA // 小键盘制表键
+#define KEY_KEYPAD_BACKSPACE                   0xBB // 小键盘退格键
+#define KEY_KEYPAD_A                           0xBC // 小键盘A键
+#define KEY_KEYPAD_B                           0xBD // 小键盘B键
+#define KEY_KEYPAD_C                           0xBE // 小键盘C键
+#define KEY_KEYPAD_D                           0xBF // 小键盘D键
+#define KEY_KEYPAD_E                           0xC0 // 小键盘E键
+#define KEY_KEYPAD_F                           0xC1 // 小键盘F键
+#define KEY_KEYPAD_XOR                         0xC2 // 小键盘异或键
+#define KEY_KEYPAD_CARET                       0xC3 // 小键盘插入符键
+#define KEY_KEYPAD_PERCENT                     0xC4 // 小键盘百分号键
+#define KEY_KEYPAD_LESS                        0xC5 // 小键盘小于号键
+#define KEY_KEYPAD_GREATER                     0xC6 // 小键盘大于号键
+#define KEY_KEYPAD_AMPERSAND                   0xC7 // 小键盘与号键
+#define KEY_KEYPAD_LOGICAL_AND                 0xC8 // 小键盘逻辑与键
+#define KEY_KEYPAD_VERTICAL_BAR                0xC9 // 小键盘竖线键
+#define KEY_KEYPAD_LOGIACL_OR                  0xCA // 小键盘逻辑或键
+#define KEY_KEYPAD_COLON                       0xCB // 小键盘冒号键
+#define KEY_KEYPAD_NUMBER_SIGN                 0xCC // 小键盘数字键
+#define KEY_KEYPAD_SPACE                       0xCD // 小键盘空格键
+#define KEY_KEYPAD_AT                          0xCE // 小键盘@
+#define KEY_KEYPAD_EXCLAMATION_MARK            0xCF // 小键盘感叹号键
+#define KEY_KEYPAD_MEMORY_STORE                0xD0 // 小键盘存储键
+#define KEY_KEYPAD_MEMORY_RECALL               0xD1 // 小键盘回忆键
+#define KEY_KEYPAD_MEMORY_CLEAR                0xD2 // 小键盘清除键
+#define KEY_KEYPAD_MEMORY_ADD                  0xD3 // 小键盘加法键
+#define KEY_KEYPAD_MEMORY_SUBTRACT             0xD4 // 小键盘减法键
+#define KEY_KEYPAD_MEMORY_MULTIPLY             0xD5 // 小键盘乘法键
+#define KEY_KEYPAD_MEMORY_DIVIDE               0xD6 // 小键盘除法键
+#define KEY_KEYPAD_PLUSMINUS                   0xD7 // 小键盘正负号键
+#define KEY_KEYPAD_CLEAR                       0xD8 // 小键盘清除键
+#define KEY_KEYPAD_CLEAR_ENTRY                 0xD9 // 小键盘清除输入键
+#define KEY_KEYPAD_BINARY                      0xDA // 小键盘二进制键
+#define KEY_KEYPAD_OCTAL                       0xDB // 小键盘八进制键
+#define KEY_KEYPAD_DECIMAL                     0xDC // 小键盘十进制键
+#define KEY_KEYPAD_HEXADECIMAL                 0xDD // 小键盘十六进制键
+#define KEY_LEFTCONTROL                        0xE0 // 左控制键
+#define KEY_LEFTSHIFT                          0xE1 // 左移位键
+#define KEY_LEFTALT                            0xE2 // 左alt键
+#define KEY_LEFT_GUI                           0xE3 // 左GUI键
+#define KEY_RIGHTCONTROL                       0xE4 // 右控制键
+#define KEY_RIGHTSHIFT                         0xE5 // 右移位键
+#define KEY_RIGHTALT                           0xE6 // 右alt键
+#define KEY_RIGHT_GUI                          0xE7 // 右GUI键
 
-#define BIT0 0X01
-#define BIT1 0X02
-#define BIT2 0X04
-#define BIT3 0X08
-#define BIT4 0X10
-#define BIT5 0X20
-#define BIT6 0X40
-#define BIT7 0X80
-
+// 位操作定义
+#define BIT0 0X01 // 第0位
+#define BIT1 0X02 // 第1位
+#define BIT2 0X04 // 第2位
+#define BIT3 0X08 // 第3位
+#define BIT4 0X10 // 第4位
+#define BIT5 0X20 // 第5位
+#define BIT6 0X40 // 第6位
+#define BIT7 0X80 // 第7位
 
 #endif

@@ -1,187 +1,239 @@
+#include <cstdint>
 /*
     键盘信号表 
-    TODO 需要检查
 */
-enum class KeyboardTable {
-    /**
-     * 无按键
-     */
-    key_none = 0x00,
-    
-    /**
-     * 按键错误
-     */
-    key_error_rollover = 0x01,
-    key_post_fail = 0x02,
-    key_error_undefined = 0x03,
-    
-    /**
-     * 字母按键
-     */
-    key_a = 0x04,
-    key_b = 0x05,
-    key_c = 0x06,
-    key_d = 0x07,
-    key_e = 0x08,
-    key_f = 0x09,
-    key_g = 0x0A,
-    key_h = 0x0B,
-    key_i = 0x0C,
-    key_j = 0x0D,
-    key_k = 0x0E,
-    key_l = 0x0F,
-    key_m = 0x10,
-    key_n = 0x11,
-    key_o = 0x12,
-    key_p = 0x13,
-    key_q = 0x14,
-    key_r = 0x15,
-    key_s = 0x16,
-    key_t = 0x17,
-    key_u = 0x18,
-    key_v = 0x19,
-    key_w = 0x1A,
-    key_x = 0x1B,
-    key_y = 0x1C,
-    key_z = 0x1D,
-    
-    /**
-     * 数字和符号按键
-     */
-    key_1_exclamation = 0x1E,
-    key_2_at = 0x1F,
-    key_3_hash = 0x20,
-    key_4_dollar = 0x21,
-    key_5_percent = 0x22,
-    key_6_caret = 0x23,
-    key_7_ampersand = 0x24,
-    key_8_asterisk = 0x25,
-    key_9_left_paren = 0x26,
-    key_0_right_paren = 0x27,
-    
-    /**
-     * 控制按键
-     */
-    key_enter = 0x28,
-    key_escape = 0x29,
-    key_backspace = 0x2A,
-    key_tab = 0x2B,
-    key_space = 0x2C,
-    key_minus_underscore = 0x2D,
-    key_equal_plus = 0x2E,
-    key_left_bracket = 0x2F,
-    key_right_bracket = 0x30,
-    key_backslash = 0x31,
-    key_hash_tilde = 0x32,
-    key_semicolon_colon = 0x33,
-    key_apostrophe_quote = 0x34,
-    key_grave_tilde = 0x35,
-    key_comma_less = 0x36,
-    key_period_greater = 0x37,
-    key_slash_question = 0x38,
-    key_caps_lock = 0x39,
-    
-    /**
-     * 功能按键
-     */
-    key_f1 = 0x3A,
-    key_f2 = 0x3B,
-    key_f3 = 0x3C,
-    key_f4 = 0x3D,
-    key_f5 = 0x3E,
-    key_f6 = 0x3F,
-    key_f7 = 0x40,
-    key_f8 = 0x41,
-    key_f9 = 0x42,
-    key_f10 = 0x43,
-    key_f11 = 0x44,
-    key_f12 = 0x45,
-    
-    /**
-     * 控制和导航按键
-     */
-    key_print_screen = 0x46,
-    key_scroll_lock = 0x47,
-    key_pause = 0x48,
-    key_insert = 0x49,
-    key_home = 0x4A,
-    key_page_up = 0x4B,
-    key_delete = 0x4C,
-    key_end = 0x4D,
-    key_page_down = 0x4E,
-    key_right_arrow = 0x4F,
-    key_left_arrow = 0x50,
-    key_down_arrow = 0x51,
-    key_up_arrow = 0x52,
-    
-    /**
-     * 数字键盘
-     */
-    key_num_lock = 0x53,
-    key_keypad_slash = 0x54,
-    key_keypad_asterisk = 0x55,
-    key_keypad_minus = 0x56,
-    key_keypad_plus = 0x57,
-    key_keypad_enter = 0x58,
-    key_keypad_1_end = 0x59,
-    key_keypad_2_down = 0x5A,
-    key_keypad_3_page_down = 0x5B,
-    key_keypad_4_left = 0x5C,
-    key_keypad_5 = 0x5D,
-    key_keypad_6_right = 0x5E,
-    key_keypad_7_home = 0x5F,
-    key_keypad_8_up = 0x60,
-    key_keypad_9_page_up = 0x61,
-    key_keypad_0_insert = 0x62,
-    key_keypad_decimal = 0x63,
-    
-    /**
-     * 修饰键
-     */
-    key_left_control = 0xE0,
-    key_left_shift = 0xE1,
-    key_left_alt = 0xE2,
-    key_left_gui = 0xE3,
-    key_right_control = 0xE4,
-    key_right_shift = 0xE5,
-    key_right_alt = 0xE6,
-    key_right_gui = 0xE7
+enum class KeyboardTable:int {
+    NONE = 0x00,                    // 无键按下
+    ERRORROLLOVER = 0x01,           // 错误回滚
+    POSTFAIL = 0x02,                // 发布失败
+    ERRORUNDEFINED = 0x03,          // 未定义的错误
+    A = 0x04,                       // 键A
+    B = 0x05,                       // 键B
+    C = 0x06,                       // 键C
+    D = 0x07,                       // 键D
+    E = 0x08,                       // 键E
+    F = 0x09,                       // 键F
+    G = 0x0A,                       // 键G
+    H = 0x0B,                       // 键H
+    I = 0x0C,                       // 键I
+    J = 0x0D,                       // 键J
+    K = 0x0E,                       // 键K
+    L = 0x0F,                       // 键L
+    M = 0x10,                       // 键M
+    N = 0x11,                       // 键N
+    O = 0x12,                       // 键O
+    P = 0x13,                       // 键P
+    Q = 0x14,                       // 键Q
+    R = 0x15,                       // 键R
+    S = 0x16,                       // 键S
+    T = 0x17,                       // 键T
+    U = 0x18,                       // 键U
+    V = 0x19,                       // 键V
+    W = 0x1A,                       // 键W
+    X = 0x1B,                       // 键X
+    Y = 0x1C,                       // 键Y
+    Z = 0x1D,                       // 键Z
+    KEY_1_EXCLAMATION_MARK = 0x1E,  // 键1和感叹号
+    KEY_2_AT = 0x1F,                // 键2和@
+    KEY_3_NUMBER_SIGN = 0x20,       // 键3和#
+    KEY_4_DOLLAR = 0x21,            // 键4和$
+    KEY_5_PERCENT = 0x22,           // 键5和%
+    KEY_6_CARET = 0x23,             // 键6和^
+    KEY_7_AMPERSAND = 0x24,         // 键7和&
+    KEY_8_ASTERISK = 0x25,          // 键8和*
+    KEY_9_OPARENTHESIS = 0x26,      // 键9和(
+    KEY_0_CPARENTHESIS = 0x27,      // 键0和)
+    ENTER = 0x28,                   // 回车键
+    ESCAPE = 0x29,                  // 逃逸键
+    BACKSPACE = 0x2A,               // 退格键
+    TAB = 0x2B,                     // 制表键
+    SPACEBAR = 0x2C,                // 空格键
+    MINUS_UNDERSCORE = 0x2D,        // 减号和下划线
+    EQUAL_PLUS = 0x2E,              // 等号和加号
+    OBRACKET_AND_OBRACE = 0x2F,     // 左方括号和左花括号
+    CBRACKET_AND_CBRACE = 0x30,     // 右方括号和右花括号
+    BACKSLASH_VERTICAL_BAR = 0x31,  // 反斜杠和竖线
+    NONUS_NUMBER_SIGN_TILDE = 0x32, // 非美国键盘的数字键和波浪号
+    SEMICOLON_COLON = 0x33,         // 分号和冒号
+    SINGLE_AND_DOUBLE_QUOTE = 0x34, // 单引号和双引号
+    GRAVE_ACCENT_AND_TILDE = 0x35,  // 重音符和波浪号
+    COMMA_AND_LESS = 0x36,          // 逗号和小于号
+    DOT_GREATER = 0x37,             // 点和大于号
+    SLASH_QUESTION = 0x38,          // 斜杠和问号
+    CAPS_LOCK = 0x39,               // 大写锁定键
+    F1 = 0x3A,                      // F1键
+    F2 = 0x3B,                      // F2键
+    F3 = 0x3C,                      // F3键
+    F4 = 0x3D,                      // F4键
+    F5 = 0x3E,                      // F5键
+    F6 = 0x3F,                      // F6键
+    F7 = 0x40,                      // F7键
+    F8 = 0x41,                      // F8键
+    F9 = 0x42,                      // F9键
+    F10 = 0x43,                     // F10键
+    F11 = 0x44,                     // F11键
+    F12 = 0x45,                     // F12键
+    PRINTSCREEN = 0x46,             // 打印屏幕键
+    SCROLL_LOCK = 0x47,             // 滚动锁定键
+    PAUSE = 0x48,                   // 暂停键
+    INSERT = 0x49,                  // 插入键
+    HOME = 0x4A,                    // 主页键
+    PAGEUP = 0x4B,                  // 上一页键
+    DELETE = 0x4C,                  // 删除键
+    END1 = 0x4D,                    // 结束键
+    PAGEDOWN = 0x4E,                // 下一页键
+    RIGHTARROW = 0x4F,              // 右箭头键
+    LEFTARROW = 0x50,               // 左箭头键
+    DOWNARROW = 0x51,               // 下箭头键
+    UPARROW = 0x52,                 // 上箭头键
+    KEYPAD_NUM_LOCK_AND_CLEAR = 0x53, // 小键盘数字锁定和清除键
+    KEYPAD_SLASH = 0x54,            // 小键盘斜杠键
+    KEYPAD_ASTERIKS = 0x55,         // 小键盘星号键
+    KEYPAD_MINUS = 0x56,            // 小键盘减号键
+    KEYPAD_PLUS = 0x57,             // 小键盘加号键
+    KEYPAD_ENTER = 0x58,            // 小键盘回车键
+    KEYPAD_1_END = 0x59,            // 小键盘1和结尾键
+    KEYPAD_2_DOWN_ARROW = 0x5A,     // 小键盘2和下箭头键
+    KEYPAD_3_PAGEDN = 0x5B,         // 小键盘3和下一页键
+    KEYPAD_4_LEFT_ARROW = 0x5C,     // 小键盘4和左箭头键
+    KEYPAD_5 = 0x5D,                // 小键盘5键
+    KEYPAD_6_RIGHT_ARROW = 0x5E,    // 小键盘6和右箭头键
+    KEYPAD_7_HOME = 0x5F,           // 小键盘7和主页键
+    KEYPAD_8_UP_ARROW = 0x60,       // 小键盘8和上箭头键
+    KEYPAD_9_PAGEUP = 0x61,         // 小键盘9和上一页键
+    KEYPAD_0_INSERT = 0x62,         // 小键盘0和插入键
+    KEYPAD_DECIMAL_SEPARATOR_DELETE = 0x63, // 小键盘小数点分隔符和删除键
+    NONUS_BACK_SLASH_VERTICAL_BAR = 0x64, // 非美国键盘的反斜杠和竖线键
+    APPLICATION = 0x65,             // 应用键
+    POWER = 0x66,                   // 电源键
+    KEYPAD_EQUAL = 0x67,            // 小键盘等号键
+    F13 = 0x68,                     // F13键
+    F14 = 0x69,                     // F14键
+    F15 = 0x6A,                     // F15键
+    F16 = 0x6B,                     // F16键
+    F17 = 0x6C,                     // F17键
+    F18 = 0x6D,                     // F18键
+    F19 = 0x6E,                     // F19键
+    F20 = 0x6F,                     // F20键
+    F21 = 0x70,                     // F21键
+    F22 = 0x71,                     // F22键
+    F23 = 0x72,                     // F23键
+    F24 = 0x73,                     // F24键
+    EXECUTE = 0x74,                 // 执行键
+    HELP = 0x75,                    // 帮助键
+    MENU = 0x76,                    // 菜单键
+    SELECT = 0x77,                  // 选择键
+    STOP = 0x78,                    // 停止键
+    AGAIN = 0x79,                   // 再次键
+    UNDO = 0x7A,                    // 撤销键
+    CUT = 0x7B,                     // 剪切键
+    COPY = 0x7C,                    // 复制键
+    PASTE = 0x7D,                   // 粘贴键
+    FIND = 0x7E,                    // 查找键
+    MUTE = 0x7F,                    // 静音键
+    VOLUME_UP = 0x80,               // 音量上键
+    VOLUME_DOWN = 0x81,             // 音量下键
+    LOCKING_CAPS_LOCK = 0x82,       // 锁定大写键
+    LOCKING_NUM_LOCK = 0x83,        // 锁定数字键
+    LOCKING_SCROLL_LOCK = 0x84,     // 锁定滚动键
+    KEYPAD_COMMA = 0x85,            // 小键盘逗号键
+    KEYPAD_EQUAL_SIGN = 0x86,       // 小键盘等号键
+    INTERNATIONAL1 = 0x87,          // 国际键1
+    INTERNATIONAL2 = 0x88,          // 国际键2
+    INTERNATIONAL3 = 0x89,          // 国际键3
+    INTERNATIONAL4 = 0x8A,          // 国际键4
+    INTERNATIONAL5 = 0x8B,          // 国际键5
+    INTERNATIONAL6 = 0x8C,          // 国际键6
+    INTERNATIONAL7 = 0x8D,          // 国际键7
+    INTERNATIONAL8 = 0x8E,          // 国际键8
+    INTERNATIONAL9 = 0x8F,          // 国际键9
+    LANG1 = 0x90,                   // 语言键1
+    LANG2 = 0x91,                   // 语言键2
+    LANG3 = 0x92,                   // 语言键3
+    LANG4 = 0x93,                   // 语言键4
+    LANG5 = 0x94,                   // 语言键5
+    LANG6 = 0x95,                   // 语言键6
+    LANG7 = 0x96,                   // 语言键7
+    LANG8 = 0x97,                   // 语言键8
+    LANG9 = 0x98,                   // 语言键9
+    ALTERNATE_ERASE = 0x99,         // 替代删除键
+    SYSREQ = 0x9A,                  // 系统请求键
+    CANCEL = 0x9B,                  // 取消键
+    CLEAR = 0x9C,                   // 清除键
+    PRIOR = 0x9D,                   // 前一页键
+    RETURN = 0x9E,                  // 回车键
+    SEPARATOR = 0x9F,               // 分隔符键
+    OUT = 0xA0,                     // 输出键
+    OPER = 0xA1,                    // 操作键
+    CLEAR_AGAIN = 0xA2,             // 再次清除键
+    CRSEL = 0xA3,                   // 光标选择键
+    EXSEL = 0xA4,                   // 扩展选择键
+    KEYPAD_00 = 0xB0,               // 小键盘00键
+    KEYPAD_000 = 0xB1,              // 小键盘000键
+    THOUSANDS_SEPARATOR = 0xB2,     // 千分符键
+    DECIMAL_SEPARATOR = 0xB3,       // 小数点分隔符键
+    CURRENCY_UNIT = 0xB4,           // 货币单位键
+    CURRENCY_SUB_UNIT = 0xB5,       // 货币子单位键
+    KEYPAD_OPARENTHESIS = 0xB6,     // 小键盘左括号键
+    KEYPAD_CPARENTHESIS = 0xB7,     // 小键盘右括号键
+    KEYPAD_OBRACE = 0xB8,           // 小键盘左花括号键
+    KEYPAD_CBRACE = 0xB9,           // 小键盘右花括号键
+    KEYPAD_TAB = 0xBA,              // 小键盘制表键
+    KEYPAD_BACKSPACE = 0xBB,        // 小键盘退格键
+    KEYPAD_A = 0xBC,                // 小键盘A键
+    KEYPAD_B = 0xBD,                // 小键盘B键
+    KEYPAD_C = 0xBE,                // 小键盘C键
+    KEYPAD_D = 0xBF,                // 小键盘D键
+    KEYPAD_E = 0xC0,                // 小键盘E键
+    KEYPAD_F = 0xC1,                // 小键盘F键
+    KEYPAD_XOR = 0xC2,              // 小键盘异或键
+    KEYPAD_CARET = 0xC3,            // 小键盘插入符键
+    KEYPAD_PERCENT = 0xC4,          // 小键盘百分号键
+    KEYPAD_LESS = 0xC5,             // 小键盘小于号键
+    KEYPAD_GREATER = 0xC6,          // 小键盘大于号键
+    KEYPAD_AMPERSAND = 0xC7,        // 小键盘与号键
+    KEYPAD_LOGICAL_AND = 0xC8,      // 小键盘逻辑与键
+    KEYPAD_VERTICAL_BAR = 0xC9,     // 小键盘竖线键
+    KEYPAD_LOGIACL_OR = 0xCA,       // 小键盘逻辑或键
+    KEYPAD_COLON = 0xCB,            // 小键盘冒号键
+    KEYPAD_NUMBER_SIGN = 0xCC,      // 小键盘数字键
+    KEYPAD_SPACE = 0xCD,            // 小键盘空格键
+    KEYPAD_AT = 0xCE,               // 小键盘@
+    KEYPAD_EXCLAMATION_MARK = 0xCF, // 小键盘感叹号键
+    KEYPAD_MEMORY_STORE = 0xD0,     // 小键盘存储键
+    KEYPAD_MEMORY_RECALL = 0xD1,    // 小键盘回忆键
+    KEYPAD_MEMORY_CLEAR = 0xD2,     // 小键盘清除键
+    KEYPAD_MEMORY_ADD = 0xD3,       // 小键盘加法键
+    KEYPAD_MEMORY_SUBTRACT = 0xD4,  // 小键盘减法键
+    KEYPAD_MEMORY_MULTIPLY = 0xD5,  // 小键盘乘法键
+    KEYPAD_MEMORY_DIVIDE = 0xD6,    // 小键盘除法键
+    KEYPAD_PLUSMINUS = 0xD7,        // 小键盘正负号键
+    KEYPAD_CLEAR = 0xD8,            // 小键盘清除键
+    KEYPAD_CLEAR_ENTRY = 0xD9,      // 小键盘清除输入键
+    KEYPAD_BINARY = 0xDA,           // 小键盘二进制键
+    KEYPAD_OCTAL = 0xDB,            // 小键盘八进制键
+    KEYPAD_DECIMAL = 0xDC,          // 小键盘十进制键
+    KEYPAD_HEXADECIMAL = 0xDD,      // 小键盘十六进制键
+    LEFTCONTROL = 0xE0,             // 左控制键
+    LEFTSHIFT = 0xE1,               // 左移位键
+    LEFTALT = 0xE2,                 // 左alt键
+    LEFT_GUI = 0xE3,                // 左GUI键
+    RIGHTCONTROL = 0xE4,            // 右控制键
+    RIGHTSHIFT = 0xE5,              // 右移位键
+    RIGHTALT = 0xE6,                // 右alt键
+    RIGHT_GUI = 0xE7                // 右GUI键
+
 };
 
-/*
-    鼠标信号表
-    TODO 检查
-*/
-enum class MouseTable {
-    /**
-     * 按键位定义
-     */
-    button_none = 0x00,       // 无按键
-    button_left = 0x01,       // 左键
-    button_right = 0x02,      // 右键
-    button_middle = 0x04,     // 中键
-    button_side1 = 0x08,      // 侧键1
-    button_side2 = 0x10,      // 侧键2
-    
-    /**
-     * 鼠标轴定义
-     */
-    axis_x = 0x01,            // X轴
-    axis_y = 0x02,            // Y轴
-    axis_wheel = 0x04,        // 滚轮
-    
-    /**
-     * 屏蔽位定义
-     */
-    mask_left = 0x01,         // 屏蔽左键
-    mask_right = 0x02,        // 屏蔽右键
-    mask_middle = 0x04,       // 屏蔽中键
-    mask_side1 = 0x08,        // 屏蔽侧键1
-    mask_side2 = 0x10,        // 屏蔽侧键2
-    mask_x = 0x20,            // 屏蔽X轴移动
-    mask_y = 0x40,            // 屏蔽Y轴移动
-    mask_wheel = 0x80         // 屏蔽滚轮
-};
+/**
+ * @brief 将键盘枚举值转换为对应的数值
+ * @param key 键盘枚举值
+ * @return 对应的数值
+ */
+inline int to_value(KeyboardTable key) {
+    return static_cast<int>(key);
+}
+
 
 
 
