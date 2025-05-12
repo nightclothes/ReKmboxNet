@@ -1,5 +1,7 @@
 #include "../include/table.hpp"
-
+#include <string>
+#include <mutex>
+#include <Winsock2.h>
 /*
     命令码
 */
@@ -23,6 +25,14 @@ enum class KmboxNetCommand : unsigned int {
     SHOW_PIC = 0x12334883,          // 显示图片
     TRACE_ENABLE = 0xbbcdddac       // 使能硬件修正功能
 };
+/**
+ * @brief 将枚举类型转换为对应的数值
+ * @param key 枚举值
+ * @return 对应的数值
+ */
+inline unsigned int to_value(KmboxNetCommand key) {
+    return static_cast<unsigned int>(key);
+}
 
 
 /*
@@ -88,16 +98,197 @@ typedef struct
 	};  
 }client_tx;
 
+/*
+    通信结果
+*/
+enum class ConResult:int{
+    ERR_CREAT_SOCKET = -9000,	//创建socket失败
+	ERR_NET_VERSION,			//socket版本错误
+	ERR_NET_TX,					//socket发送错误
+	ERR_NET_RX_TIMEOUT,			//socket接收超时
+	ERR_NET_CMD,				//命令错误
+	ERR_NET_PTS,				//时间戳错误
+	SUCCESS = 0,				//正常执行
+	USB_DEV_TX_TIMEOUT,			//USB devic发送失败
+};
+
 
 /*
     KmboxNet外设功能
 */
 class KmboxNet {
 public:
-    KmboxNet();
-    ~KmboxNet();
-private:
+    /**
+     * 构造函数
+     * @param ip 盒子的IP地址
+     * @param port 通信端口号
+     * @param mac 盒子的MAC地址
+     */
+    KmboxNet(std::string ip, std::string port, std::string mac){
+        this->ip = ip;
+        this->port = port;
+        this->mac = mac;
+    }
+    
+    /**
+     * 重新设置参数
+     * @param ip 盒子的IP地址
+     * @param port 通信端口号
+     * @param mac 盒子的MAC地址
+     */
+    void reset(std::string ip, std::string port, std::string mac){
+        std::lock_guard<std::mutex> lock(mutex);
+        this->ip = ip;
+        this->port = port;
+        this->mac = mac;
+    }
 
-        
+    /**
+     * 连接
+     * @return 连接结果
+     */
+    ConResult connect(){
+        std::lock_guard<std::mutex> lock(mutex);
+        // socket
+        WSADATA info;
+        if(WSAStartup(MAKEWORD(1, 1), &info) != 0){
+            return ConResult::ERR_CREAT_SOCKET;
+        }
+        if (LOBYTE(info.wVersion) != 1 || HIBYTE(info.wVersion) != 1) {
+            return ConResult::ERR_NET_VERSION;
+        }
+        io_socket = socket(AF_INET, SOCK_DGRAM, 0); // 创建UDP套接字
+        addr_info.sin_family = AF_INET; // 设置地址族为IPv4
+        addr_info.sin_port = htons(atoi(port.c_str())); // 设置端口号
+        addr_info.sin_addr.S_un.S_addr = inet_addr(ip.c_str()); // 设置IP地址
+
+        // 设置发送数据
+        send_data.head.mac = str2hex(mac, 4); // 设置mac地址
+        srand((unsigned)time(NULL)); // 设置随机种子
+        send_data.head.rand = rand(); // 设置随机值
+        send_data.head.indexpts = 0; // 设置指令统计值
+        send_data.head.cmd = to_value(KmboxNetCommand::CONNECT); // 设置命令码
+        memset(&mouse_data, 0, sizeof(mouse_data));	//软件鼠标数据清零
+		memset(&keyboard_data, 0, sizeof(keyboard_data));//软件键盘数据清零
+
+        // 生成密钥
+        secret_key[0] = send_data.head.mac >> 24; 
+        secret_key[1] = send_data.head.mac >> 16;
+        secret_key[2] = send_data.head.mac >> 8; 
+        secret_key[3] = send_data.head.mac  >> 0; 
+
+        // 发送数据
+        int err = sendto(io_socket, (char*)&send_data, sizeof(cmd_head_t), 0, (SOCKADDR*)&addr_info, sizeof(addr_info));
+
+        // 接收数据
+        int from_len = sizeof(addr_info);
+        err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, (SOCKADDR*)&addr_info, &from_len);
+
+        // 处理返回结果
+        return handle_return(&recv_data, &send_data);
+    }
+
+    ConResult move_mouse(int x, int y){
+        std::lock_guard<std::mutex> lock(mutex);
+        if (io_socket == 0){
+            return ConResult::ERR_NET_TX;   
+        }
+
+        // 设置鼠标数据
+        mouse_data.x = x;
+        mouse_data.y = y;
+
+        // 设置发送数据
+        send_data.head.cmd = to_value(KmboxNetCommand::MOUSE_MOVE);
+        send_data.cmd_mouse = mouse_data;
+        send_data.head.indexpts++;
+        send_data.head.rand = rand();
+
+        // 发送数据
+        int err = sendto(io_socket, (char*)&send_data, sizeof(cmd_head_t) + sizeof(soft_mouse_t), 0, (SOCKADDR*)&addr_info, sizeof(addr_info));
+
+        // 接收数据
+        int from_len = sizeof(addr_info);
+        err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, (SOCKADDR*)&addr_info, &from_len);
+
+        // 更新鼠标数据
+        mouse_data.x = 0;
+        mouse_data.y = 0;
+
+        // 处理返回结果
+        return handle_return(&recv_data, &send_data);
+    }
+
+
+    ConResult disconnect(){
+        std::lock_guard<std::mutex> lock(mutex);
+        // TODO 连接功能
+        return ConResult::SUCCESS;
+    }
+
+    ~KmboxNet() = default;
+private:
+    std::mutex mutex;
+
+    std::string ip; 
+    std::string port;
+    std::string mac;
+
+    unsigned char secret_key[16] = {0}; // 加密密钥 
+
+    SOCKET io_socket = 0; //键鼠网络通信句柄
+    SOCKADDR_IN addr_info; // 地址信息
+
+    client_tx send_data; // 发送数据
+    client_tx recv_data; // 接收数据
+
+    soft_mouse_t mouse_data; // 鼠标数据
+    soft_keyboard_t keyboard_data; // 键盘数据
+
+    /**
+     * 将字符串转换为十六进制数
+     * @param pbSrc 源字符串
+     * @param nLen 源字符串的长度
+     * @return 转换后的十六进制数
+     */
+    unsigned int str2hex(std::string pbSrc, int nLen)
+    {	char h1, h2;
+        unsigned char s1, s2;
+        int i;
+        unsigned int pbDest[16] = { 0 };
+        for (i = 0; i < nLen; i++) {
+            h1 = pbSrc[2 * i]; // 获取第一个字符
+            h2 = pbSrc[2 * i + 1]; // 获取第二个字符
+            // 将字符转换为数字，'A'-'F'转换为10-15，'a'-'f'转换为10-15
+            s1 = toupper(h1) - 0x30;
+            if (s1 > 9)
+                s1 -= 7;
+            s2 = toupper(h2) - 0x30;
+            if (s2 > 9)
+                s2 -= 7;
+            // 将两个数字合并为一个十六进制数
+            pbDest[i] = s1 * 16 + s2;
+        }
+        // 将转换后的十六进制数合并为一个整数
+        return pbDest[0] << 24 | pbDest[1] << 16 | pbDest[2] << 8 | pbDest[3];
+    }
+
+    /**
+     * 处理返回结果
+     * @param recv 接收到的数据
+     * @param send 发送的数据
+     * @return 处理结果
+     */
+    ConResult handle_return(client_tx* recv, client_tx* send)		 
+    {
+        ConResult ret = ConResult::SUCCESS;
+        if (recv->head.cmd != send->head.cmd)
+            ret = ConResult::ERR_NET_CMD;//命令码错误
+        if (recv->head.indexpts != send->head.indexpts)
+            ret= ConResult::ERR_NET_PTS;//时间戳错误
+        return ret;				
+    }
+
+
 };
 

@@ -8,6 +8,10 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "${workspaceFolder}\\source\\main.cpp",
+                "-I",
+                "${workspaceFolder}\\include",
+                "-l",
+                "ws2_32",
                 "-o",
                 "${workspaceFolder}\\bin\\debug\\app.exe"
             ],
