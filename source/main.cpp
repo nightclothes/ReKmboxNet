@@ -48,7 +48,7 @@ int main() {
     }
     
     // 创建KmboxNet实例
-    KmboxNet kmbox("192.168.1.100", "8080", "AABBCCDD");
+    KmboxNet kmbox("192.168.2.188", "33792", "87585C53");
     
     // 连接
     if (kmbox.connect() != ConResult::SUCCESS) {
