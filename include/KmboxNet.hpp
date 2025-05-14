@@ -222,7 +222,6 @@ public:
 
     ConResult disconnect(){
         std::lock_guard<std::mutex> lock(mutex);
-        // TODO 连接功能
         return ConResult::SUCCESS;
     }
 

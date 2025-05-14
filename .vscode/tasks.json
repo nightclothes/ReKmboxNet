@@ -21,11 +21,32 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "detail": "调试"
+        },
+        {
+            "type": "cppbuild",
+            "label": "release",
+            "command": "C:\\Program Files\\mingw64\\bin\\g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-O2",
+                "${workspaceFolder}\\source\\main.cpp",
+                "-I",
+                "${workspaceFolder}\\include",
+                "-l",
+                "ws2_32",
+                "-o",
+                "${workspaceFolder}\\bin\\release\\app.exe"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "发布"
         }
     ],
     "version": "2.0.0"
