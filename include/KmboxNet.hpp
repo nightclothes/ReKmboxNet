@@ -2,6 +2,17 @@
 #include <string>
 #include <mutex>
 #include <Winsock2.h>
+
+// 位操作定义
+#define BIT0 0X01 // 第0位
+#define BIT1 0X02 // 第1位
+#define BIT2 0X04 // 第2位
+#define BIT3 0X08 // 第3位
+#define BIT4 0X10 // 第4位
+#define BIT5 0X20 // 第5位
+#define BIT6 0X40 // 第6位
+#define BIT7 0X80 // 第7位
+
 /*
     命令码
 */
@@ -100,6 +111,7 @@ typedef struct
 
 /*
     通信结果
+    FIXME 错误码存在逻辑问题:1.还不够完整 2.定义含糊
 */
 enum class ConResult:int{
     ERR_CREAT_SOCKET = -9000,	//创建socket失败
@@ -162,6 +174,11 @@ public:
         addr_info.sin_port = htons(atoi(port.c_str())); // 设置端口号
         addr_info.sin_addr.S_un.S_addr = inet_addr(ip.c_str()); // 设置IP地址
 
+        // 设置接收和发送超时
+        int timeout = 1000; // 设置超时时间为1秒
+        setsockopt(io_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+        setsockopt(io_socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
+
         // 设置发送数据
         send_data.head.mac = str2hex(mac, 4); // 设置mac地址
         srand((unsigned)time(NULL)); // 设置随机种子
@@ -188,7 +205,7 @@ public:
         return handle_return(&recv_data, &send_data);
     }
 
-    ConResult move_mouse(int x, int y){
+    ConResult mouse_move(int x, int y){
         std::lock_guard<std::mutex> lock(mutex);
         if (io_socket == 0){
             return ConResult::ERR_NET_TX;   
@@ -211,17 +228,145 @@ public:
         int from_len = sizeof(addr_info);
         err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, (SOCKADDR*)&addr_info, &from_len);
 
-        // 更新鼠标数据
-        mouse_data.x = 0;
-        mouse_data.y = 0;
+        // 处理返回结果
+        return handle_return(&recv_data, &send_data);
+    }
+
+    ConResult keyboard_down(KeyboardTable key){
+        std::lock_guard<std::mutex> lock(mutex);
+        if (io_socket == 0){
+            return ConResult::ERR_NET_TX;   
+        }
+
+        // 控制键
+        if (to_value(key) >= to_value(KeyboardTable::LEFTCONTROL) 
+            && to_value(key) <= to_value(KeyboardTable::RIGHT_GUI)){
+            switch (key){
+                case KeyboardTable::LEFTCONTROL:
+                    keyboard_data.ctrl |= BIT0;
+                    break;
+                case KeyboardTable::RIGHTCONTROL:
+                    keyboard_data.ctrl |= BIT4;
+                    break;
+                case KeyboardTable::LEFTSHIFT:
+                    keyboard_data.ctrl |= BIT1;
+                    break;
+                case KeyboardTable::RIGHTSHIFT:
+                    keyboard_data.ctrl |= BIT5;
+                    break;
+                case KeyboardTable::LEFTALT:
+                    keyboard_data.ctrl |= BIT2;
+                    break;
+                case KeyboardTable::RIGHTALT:
+                    keyboard_data.ctrl |= BIT6;
+                    break;
+                case KeyboardTable::LEFT_GUI:
+                    keyboard_data.ctrl |= BIT3;
+                    break;
+                case KeyboardTable::RIGHT_GUI:
+                    keyboard_data.ctrl |= BIT7;
+                    break;
+            }
+        }
+        // 常规键
+        else{
+            keyboard_data.button[0] = to_value(key);
+        }
+
+        // 设置发送数据
+        send_data.head.cmd = to_value(KmboxNetCommand::KEYBOARD_ALL);
+        send_data.cmd_keyboard = keyboard_data;
+        send_data.head.indexpts++;
+        send_data.head.rand = rand();
+
+        // 发送数据
+        int err = sendto(io_socket, (char*)&send_data, sizeof(cmd_head_t) + sizeof(soft_keyboard_t), 0, (SOCKADDR*)&addr_info, sizeof(addr_info));
+
+        // 接收数据
+        int from_len = sizeof(addr_info);
+        err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, (SOCKADDR*)&addr_info, &from_len);
 
         // 处理返回结果
         return handle_return(&recv_data, &send_data);
     }
 
+    ConResult keyboard_up(KeyboardTable key){
+        std::lock_guard<std::mutex> lock(mutex);
+        if (io_socket == 0){
+            return ConResult::ERR_NET_TX;   
+        }
+
+        // 控制键
+        if (to_value(key) >= to_value(KeyboardTable::LEFTCONTROL) 
+            && to_value(key) <= to_value(KeyboardTable::RIGHT_GUI)){
+                            switch (key){
+                case KeyboardTable::LEFTCONTROL:
+                    keyboard_data.ctrl &= ~BIT0;
+                    break;
+                case KeyboardTable::RIGHTCONTROL:
+                    keyboard_data.ctrl &= ~BIT4;
+                    break;
+                case KeyboardTable::LEFTSHIFT:
+                    keyboard_data.ctrl &= ~BIT1;
+                    break;
+                case KeyboardTable::RIGHTSHIFT:
+                    keyboard_data.ctrl &= ~BIT5;
+                    break;
+                case KeyboardTable::LEFTALT:
+                    keyboard_data.ctrl &= ~BIT2;
+                    break;
+                case KeyboardTable::RIGHTALT:
+                    keyboard_data.ctrl &= ~BIT6;
+                    break;
+                case KeyboardTable::LEFT_GUI:
+                    keyboard_data.ctrl &= ~BIT3;
+                    break;
+                case KeyboardTable::RIGHT_GUI:
+                    keyboard_data.ctrl &= ~BIT7;
+                    break;
+            }
+        }
+        // 常规键
+        else{
+            keyboard_data.button[0] = to_value(KeyboardTable::NONE);
+        }
+
+        // 设置发送数据
+        send_data.head.cmd = to_value(KmboxNetCommand::KEYBOARD_ALL);
+        send_data.cmd_keyboard = keyboard_data;
+        send_data.head.indexpts++;
+        send_data.head.rand = rand();
+
+        // 发送数据
+        int err = sendto(io_socket, (char*)&send_data, sizeof(cmd_head_t) + sizeof(soft_keyboard_t), 0, (SOCKADDR*)&addr_info, sizeof(addr_info));
+
+        // 接收数据
+        int from_len = sizeof(addr_info);
+        err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, (SOCKADDR*)&addr_info, &from_len);
+
+        // 处理返回结果
+        return handle_return(&recv_data, &send_data);
+    }
+
+    ConResult Keyboard_click(KeyboardTable key, int delay = 0){
+        ConResult ret = keyboard_down(key);
+        if (ret != ConResult::SUCCESS){
+            return ret;
+        }
+        if (delay > 0){  
+            Sleep(delay);
+        }
+        ret = keyboard_up(key);
+        return ret;
+    }
+
 
     ConResult disconnect(){
         std::lock_guard<std::mutex> lock(mutex);
+        if (io_socket == 0){
+            return ConResult::ERR_NET_TX;   
+        }
+        // 设置发送数据
         return ConResult::SUCCESS;
     }
 
