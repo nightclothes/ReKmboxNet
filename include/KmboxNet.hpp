@@ -2,6 +2,9 @@
 #include <string>
 #include <mutex>
 #include <Winsock2.h>
+#include <memory>
+#include <array>
+#include <stdexcept>
 
 // 位操作定义
 #define BIT0 0X01 // 第0位
@@ -125,90 +128,86 @@ enum class ConResult:int{
 };
 
 
-/*
-    KmboxNet外设功能
-*/
+/**
+ * @brief KmboxNet类 - 用于控制键鼠盒子的网络通信
+ */
 class KmboxNet {
 public:
     /**
-     * 构造函数
+     * @brief 构造函数
      * @param ip 盒子的IP地址
      * @param port 通信端口号
      * @param mac 盒子的MAC地址
+     * @throw std::runtime_error 如果参数无效
      */
-    KmboxNet(std::string ip, std::string port, std::string mac){
+    KmboxNet(std::string ip, std::string port, std::string mac) {
+        if (ip.empty() || port.empty() || mac.empty()) {
+            throw std::runtime_error("Invalid parameters");
+        }
         this->ip = ip;
         this->port = port;
         this->mac = mac;
+        init_data();
     }
     
     /**
-     * 重新设置参数
+     * @brief 重新设置参数
      * @param ip 盒子的IP地址
      * @param port 通信端口号
      * @param mac 盒子的MAC地址
+     * @throw std::runtime_error 如果参数无效
      */
-    void reset(std::string ip, std::string port, std::string mac){
+    void reset(std::string ip, std::string port, std::string mac) {
         std::lock_guard<std::mutex> lock(mutex);
+        if (ip.empty() || port.empty() || mac.empty()) {
+            throw std::runtime_error("Invalid parameters");
+        }
         this->ip = ip;
         this->port = port;
         this->mac = mac;
+        init_data();
     }
 
     /**
-     * 连接
+     * @brief 连接设备
      * @return 连接结果
      */
-    ConResult connect(){
+    ConResult connect() {
         std::lock_guard<std::mutex> lock(mutex);
-        // socket
-        WSADATA info;
-        if(WSAStartup(MAKEWORD(1, 1), &info) != 0){
+        
+        // 初始化socket
+        if (!init_socket()) {
             return ConResult::ERR_CREAT_SOCKET;
         }
-        if (LOBYTE(info.wVersion) != 1 || HIBYTE(info.wVersion) != 1) {
-            return ConResult::ERR_NET_VERSION;
-        }
-        io_socket = socket(AF_INET, SOCK_DGRAM, 0); // 创建UDP套接字
-        addr_info.sin_family = AF_INET; // 设置地址族为IPv4
-        addr_info.sin_port = htons(atoi(port.c_str())); // 设置端口号
-        addr_info.sin_addr.S_un.S_addr = inet_addr(ip.c_str()); // 设置IP地址
-
-        // 设置接收和发送超时
-        int timeout = 1000; // 设置超时时间为1秒
-        setsockopt(io_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
-        setsockopt(io_socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
 
         // 设置发送数据
-        send_data.head.mac = str2hex(mac, 4); // 设置mac地址
-        srand((unsigned)time(NULL)); // 设置随机种子
-        send_data.head.rand = rand(); // 设置随机值
-        send_data.head.indexpts = 0; // 设置指令统计值
-        send_data.head.cmd = to_value(KmboxNetCommand::CONNECT); // 设置命令码
-        memset(&mouse_data, 0, sizeof(mouse_data));	//软件鼠标数据清零
-		memset(&keyboard_data, 0, sizeof(keyboard_data));//软件键盘数据清零
+        send_data.head.mac = str2hex(mac, 4);
+        send_data.head.rand = rand();
+        send_data.head.indexpts = 0;
+        send_data.head.cmd = to_value(KmboxNetCommand::CONNECT);
 
         // 生成密钥
-        secret_key[0] = send_data.head.mac >> 24; 
-        secret_key[1] = send_data.head.mac >> 16;
-        secret_key[2] = send_data.head.mac >> 8; 
-        secret_key[3] = send_data.head.mac  >> 0; 
+        generate_secret_key();
 
         // 发送数据
-        int err = sendto(io_socket, (char*)&send_data, sizeof(cmd_head_t), 0, (SOCKADDR*)&addr_info, sizeof(addr_info));
+        if (!send_and_receive(sizeof(cmd_head_t))) {
+            cleanup_socket();
+            return ConResult::ERR_NET_TX;
+        }
 
-        // 接收数据
-        int from_len = sizeof(addr_info);
-        err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, (SOCKADDR*)&addr_info, &from_len);
-
-        // 处理返回结果
         return handle_return(&recv_data, &send_data);
     }
 
-    ConResult mouse_move(int x, int y){
+    /**
+     * @brief 鼠标移动
+     * @param x X轴移动距离
+     * @param y Y轴移动距离
+     * @return 操作结果
+     */
+    ConResult mouse_move(int x, int y) {
         std::lock_guard<std::mutex> lock(mutex);
-        if (io_socket == 0){
-            return ConResult::ERR_NET_TX;   
+        if (!check_connection()) {
+            return ConResult::ERR_NET_TX;
         }
 
         // 设置鼠标数据
@@ -216,178 +215,267 @@ public:
         mouse_data.y = y;
 
         // 设置发送数据
-        send_data.head.cmd = to_value(KmboxNetCommand::MOUSE_MOVE);
-        send_data.cmd_mouse = mouse_data;
-        send_data.head.indexpts++;
-        send_data.head.rand = rand();
+        prepare_mouse_data(KmboxNetCommand::MOUSE_MOVE);
 
         // 发送数据
-        int err = sendto(io_socket, (char*)&send_data, sizeof(cmd_head_t) + sizeof(soft_mouse_t), 0, (SOCKADDR*)&addr_info, sizeof(addr_info));
+        bool success = send_and_receive(sizeof(cmd_head_t) + sizeof(soft_mouse_t));
 
-        // 接收数据
-        int from_len = sizeof(addr_info);
-        err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, (SOCKADDR*)&addr_info, &from_len);
-
-        // 处理返回结果
-        return handle_return(&recv_data, &send_data);
+        return success ? handle_return(&recv_data, &send_data) : ConResult::ERR_NET_TX;
     }
 
-    ConResult keyboard_down(KeyboardTable key){
+    /**
+     * @brief 键盘按下
+     * @param key 按键枚举值
+     * @return 操作结果
+     */
+    ConResult keyboard_down(KeyboardTable key) {
         std::lock_guard<std::mutex> lock(mutex);
-        if (io_socket == 0){
-            return ConResult::ERR_NET_TX;   
+        if (!check_connection()) {
+            return ConResult::ERR_NET_TX;
         }
 
-        // 控制键
-        if (to_value(key) >= to_value(KeyboardTable::LEFTCONTROL) 
-            && to_value(key) <= to_value(KeyboardTable::RIGHT_GUI)){
-            switch (key){
-                case KeyboardTable::LEFTCONTROL:
-                    keyboard_data.ctrl |= BIT0;
-                    break;
-                case KeyboardTable::RIGHTCONTROL:
-                    keyboard_data.ctrl |= BIT4;
-                    break;
-                case KeyboardTable::LEFTSHIFT:
-                    keyboard_data.ctrl |= BIT1;
-                    break;
-                case KeyboardTable::RIGHTSHIFT:
-                    keyboard_data.ctrl |= BIT5;
-                    break;
-                case KeyboardTable::LEFTALT:
-                    keyboard_data.ctrl |= BIT2;
-                    break;
-                case KeyboardTable::RIGHTALT:
-                    keyboard_data.ctrl |= BIT6;
-                    break;
-                case KeyboardTable::LEFT_GUI:
-                    keyboard_data.ctrl |= BIT3;
-                    break;
-                case KeyboardTable::RIGHT_GUI:
-                    keyboard_data.ctrl |= BIT7;
-                    break;
-            }
-        }
-        // 常规键
-        else{
+        // 处理按键数据
+        if (is_control_key(key)) {
+            handle_control_key_down(key);
+        } else {
             keyboard_data.button[0] = to_value(key);
         }
 
         // 设置发送数据
-        send_data.head.cmd = to_value(KmboxNetCommand::KEYBOARD_ALL);
-        send_data.cmd_keyboard = keyboard_data;
-        send_data.head.indexpts++;
-        send_data.head.rand = rand();
+        prepare_keyboard_data();
 
-        // 发送数据
-        int err = sendto(io_socket, (char*)&send_data, sizeof(cmd_head_t) + sizeof(soft_keyboard_t), 0, (SOCKADDR*)&addr_info, sizeof(addr_info));
-
-        // 接收数据
-        int from_len = sizeof(addr_info);
-        err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, (SOCKADDR*)&addr_info, &from_len);
-
-        // 处理返回结果
-        return handle_return(&recv_data, &send_data);
+        return send_and_receive(sizeof(cmd_head_t) + sizeof(soft_keyboard_t)) 
+            ? handle_return(&recv_data, &send_data) 
+            : ConResult::ERR_NET_TX;
     }
 
-    ConResult keyboard_up(KeyboardTable key){
+    /**
+     * @brief 键盘抬起
+     * @param key 按键枚举值
+     * @return 操作结果
+     */
+    ConResult keyboard_up(KeyboardTable key) {
         std::lock_guard<std::mutex> lock(mutex);
-        if (io_socket == 0){
-            return ConResult::ERR_NET_TX;   
+        if (!check_connection()) {
+            return ConResult::ERR_NET_TX;
         }
 
-        // 控制键
-        if (to_value(key) >= to_value(KeyboardTable::LEFTCONTROL) 
-            && to_value(key) <= to_value(KeyboardTable::RIGHT_GUI)){
-                            switch (key){
-                case KeyboardTable::LEFTCONTROL:
-                    keyboard_data.ctrl &= ~BIT0;
-                    break;
-                case KeyboardTable::RIGHTCONTROL:
-                    keyboard_data.ctrl &= ~BIT4;
-                    break;
-                case KeyboardTable::LEFTSHIFT:
-                    keyboard_data.ctrl &= ~BIT1;
-                    break;
-                case KeyboardTable::RIGHTSHIFT:
-                    keyboard_data.ctrl &= ~BIT5;
-                    break;
-                case KeyboardTable::LEFTALT:
-                    keyboard_data.ctrl &= ~BIT2;
-                    break;
-                case KeyboardTable::RIGHTALT:
-                    keyboard_data.ctrl &= ~BIT6;
-                    break;
-                case KeyboardTable::LEFT_GUI:
-                    keyboard_data.ctrl &= ~BIT3;
-                    break;
-                case KeyboardTable::RIGHT_GUI:
-                    keyboard_data.ctrl &= ~BIT7;
-                    break;
-            }
-        }
-        // 常规键
-        else{
+        // 处理按键数据
+        if (is_control_key(key)) {
+            handle_control_key_up(key);
+        } else {
             keyboard_data.button[0] = to_value(KeyboardTable::NONE);
         }
 
         // 设置发送数据
+        prepare_keyboard_data();
+
+        return send_and_receive(sizeof(cmd_head_t) + sizeof(soft_keyboard_t)) 
+            ? handle_return(&recv_data, &send_data) 
+            : ConResult::ERR_NET_TX;
+    }
+
+    /**
+     * @brief 键盘点击
+     * @param key 按键枚举值
+     * @param delay 延迟时间(ms)
+     * @return 操作结果
+     */
+    ConResult Keyboard_click(KeyboardTable key, int delay = 0) {
+        ConResult ret = keyboard_down(key);
+        if (ret != ConResult::SUCCESS) {
+            return ret;
+        }
+        if (delay > 0) {
+            Sleep(delay);
+        }
+        return keyboard_up(key);
+    }
+
+    /**
+     * @brief 断开连接
+     * @return 操作结果
+     */
+    ConResult disconnect() {
+        std::lock_guard<std::mutex> lock(mutex);
+        if (!check_connection()) {
+            return ConResult::ERR_NET_TX;
+        }
+        cleanup_socket();
+        return ConResult::SUCCESS;
+    }
+
+    // 析构函数
+    ~KmboxNet() {
+        cleanup_socket();
+    }
+
+private:
+    std::mutex mutex;
+    std::string ip;
+    std::string port;
+    std::string mac;
+    std::array<unsigned char, 16> secret_key{};
+    SOCKET io_socket{0};
+    SOCKADDR_IN addr_info{};
+    client_tx send_data{};
+    client_tx recv_data{};
+    soft_mouse_t mouse_data{};
+    soft_keyboard_t keyboard_data{};
+
+    /**
+     * @brief 初始化数据
+     */
+    void init_data() {
+        memset(&mouse_data, 0, sizeof(mouse_data));
+        memset(&keyboard_data, 0, sizeof(keyboard_data));
+        memset(&send_data, 0, sizeof(send_data));
+        memset(&recv_data, 0, sizeof(recv_data));
+    }
+
+    /**
+     * @brief 初始化socket
+     * @return 是否成功
+     */
+    bool init_socket() {
+        WSADATA info;
+        if (WSAStartup(MAKEWORD(1, 1), &info) != 0) {
+            return false;
+        }
+        if (LOBYTE(info.wVersion) != 1 || HIBYTE(info.wVersion) != 1) {
+            WSACleanup();
+            return false;
+        }
+
+        io_socket = socket(AF_INET, SOCK_DGRAM, 0);
+        addr_info.sin_family = AF_INET;
+        addr_info.sin_port = htons(atoi(port.c_str()));
+        addr_info.sin_addr.S_un.S_addr = inet_addr(ip.c_str());
+
+        // 设置超时
+        int timeout = 1000;
+        setsockopt(io_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+        setsockopt(io_socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
+
+        return true;
+    }
+
+    /**
+     * @brief 清理socket
+     */
+    void cleanup_socket() {
+        if (io_socket != 0) {
+            closesocket(io_socket);
+            io_socket = 0;
+            WSACleanup();
+        }
+    }
+
+    /**
+     * @brief 生成密钥
+     */
+    void generate_secret_key() {
+        unsigned int mac_value = str2hex(mac, 4);
+        secret_key[0] = mac_value >> 24;
+        secret_key[1] = mac_value >> 16;
+        secret_key[2] = mac_value >> 8;
+        secret_key[3] = mac_value;
+    }
+
+    /**
+     * @brief 检查连接状态
+     * @return 是否已连接
+     */
+    bool check_connection() const {
+        return io_socket != 0;
+    }
+
+    /**
+     * @brief 判断是否为控制键
+     * @param key 按键枚举值
+     * @return 是否为控制键
+     */
+    bool is_control_key(KeyboardTable key) const {
+        return to_value(key) >= to_value(KeyboardTable::LEFTCONTROL) 
+            && to_value(key) <= to_value(KeyboardTable::RIGHT_GUI);
+    }
+
+    /**
+     * @brief 处理控制键按下
+     * @param key 控制键
+     */
+    void handle_control_key_down(KeyboardTable key) {
+        switch (key) {
+            case KeyboardTable::LEFTCONTROL:  keyboard_data.ctrl |= BIT0; break;
+            case KeyboardTable::RIGHTCONTROL: keyboard_data.ctrl |= BIT4; break;
+            case KeyboardTable::LEFTSHIFT:    keyboard_data.ctrl |= BIT1; break;
+            case KeyboardTable::RIGHTSHIFT:   keyboard_data.ctrl |= BIT5; break;
+            case KeyboardTable::LEFTALT:      keyboard_data.ctrl |= BIT2; break;
+            case KeyboardTable::RIGHTALT:     keyboard_data.ctrl |= BIT6; break;
+            case KeyboardTable::LEFT_GUI:     keyboard_data.ctrl |= BIT3; break;
+            case KeyboardTable::RIGHT_GUI:    keyboard_data.ctrl |= BIT7; break;
+            default: break;
+        }
+    }
+
+    /**
+     * @brief 处理控制键抬起
+     * @param key 控制键
+     */
+    void handle_control_key_up(KeyboardTable key) {
+        switch (key) {
+            case KeyboardTable::LEFTCONTROL:  keyboard_data.ctrl &= ~BIT0; break;
+            case KeyboardTable::RIGHTCONTROL: keyboard_data.ctrl &= ~BIT4; break;
+            case KeyboardTable::LEFTSHIFT:    keyboard_data.ctrl &= ~BIT1; break;
+            case KeyboardTable::RIGHTSHIFT:   keyboard_data.ctrl &= ~BIT5; break;
+            case KeyboardTable::LEFTALT:      keyboard_data.ctrl &= ~BIT2; break;
+            case KeyboardTable::RIGHTALT:     keyboard_data.ctrl &= ~BIT6; break;
+            case KeyboardTable::LEFT_GUI:     keyboard_data.ctrl &= ~BIT3; break;
+            case KeyboardTable::RIGHT_GUI:    keyboard_data.ctrl &= ~BIT7; break;
+            default: break;
+        }
+    }
+
+    /**
+     * @brief 准备鼠标数据
+     * @param cmd 命令
+     */
+    void prepare_mouse_data(KmboxNetCommand cmd) {
+        send_data.head.cmd = to_value(cmd);
+        send_data.cmd_mouse = mouse_data;
+        send_data.head.indexpts++;
+        send_data.head.rand = rand();
+    }
+
+    /**
+     * @brief 准备键盘数据
+     */
+    void prepare_keyboard_data() {
         send_data.head.cmd = to_value(KmboxNetCommand::KEYBOARD_ALL);
         send_data.cmd_keyboard = keyboard_data;
         send_data.head.indexpts++;
         send_data.head.rand = rand();
+    }
 
+    /**
+     * @brief 发送和接收数据
+     * @param send_size 发送数据大小
+     * @return 是否成功
+     */
+    bool send_and_receive(size_t send_size) {
         // 发送数据
-        int err = sendto(io_socket, (char*)&send_data, sizeof(cmd_head_t) + sizeof(soft_keyboard_t), 0, (SOCKADDR*)&addr_info, sizeof(addr_info));
+        int err = sendto(io_socket, (char*)&send_data, send_size, 0, 
+                        (SOCKADDR*)&addr_info, sizeof(addr_info));
+        if (err == SOCKET_ERROR) {
+            return false;
+        }
 
         // 接收数据
         int from_len = sizeof(addr_info);
-        err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, (SOCKADDR*)&addr_info, &from_len);
-
-        // 处理返回结果
-        return handle_return(&recv_data, &send_data);
+        err = recvfrom(io_socket, (char*)&recv_data, 1024, 0, 
+                      (SOCKADDR*)&addr_info, &from_len);
+        return err != SOCKET_ERROR;
     }
-
-    ConResult Keyboard_click(KeyboardTable key, int delay = 0){
-        ConResult ret = keyboard_down(key);
-        if (ret != ConResult::SUCCESS){
-            return ret;
-        }
-        if (delay > 0){  
-            Sleep(delay);
-        }
-        ret = keyboard_up(key);
-        return ret;
-    }
-
-
-    ConResult disconnect(){
-        std::lock_guard<std::mutex> lock(mutex);
-        if (io_socket == 0){
-            return ConResult::ERR_NET_TX;   
-        }
-        // 设置发送数据
-        return ConResult::SUCCESS;
-    }
-
-    ~KmboxNet() = default;
-private:
-    std::mutex mutex;
-
-    std::string ip; 
-    std::string port;
-    std::string mac;
-
-    unsigned char secret_key[16] = {0}; // 加密密钥 
-
-    SOCKET io_socket = 0; //键鼠网络通信句柄
-    SOCKADDR_IN addr_info; // 地址信息
-
-    client_tx send_data; // 发送数据
-    client_tx recv_data; // 接收数据
-
-    soft_mouse_t mouse_data; // 鼠标数据
-    soft_keyboard_t keyboard_data; // 键盘数据
 
     /**
      * 将字符串转换为十六进制数
