@@ -117,14 +117,11 @@ typedef struct
     FIXME 错误码存在逻辑问题:1.还不够完整 2.定义含糊
 */
 enum class ConResult:int{
-    ERR_CREAT_SOCKET = -9000,	//创建socket失败
-	ERR_NET_VERSION,			//socket版本错误
-	ERR_NET_TX,					//socket发送错误
-	ERR_NET_RX_TIMEOUT,			//socket接收超时
-	ERR_NET_CMD,				//命令错误
-	ERR_NET_PTS,				//时间戳错误
-	SUCCESS = 0,				//正常执行
-	USB_DEV_TX_TIMEOUT,			//USB devic发送失败
+    ERR_CREAT_SOCKET,	         //创建socket失败
+	ERR_NET_SEND,				 //socket发送错误
+	ERR_NET_CMD,				 //命令错误
+	ERR_NET_PTS,				 //时间戳错误
+	SUCCESS,				     //正常执行
 };
 
 
@@ -192,7 +189,7 @@ public:
         // 发送数据
         if (!send_and_receive(sizeof(cmd_head_t))) {
             cleanup_socket();
-            return ConResult::ERR_NET_TX;
+            return ConResult::ERR_NET_SEND;
         }
 
         return handle_return(&recv_data, &send_data);
@@ -207,7 +204,7 @@ public:
     ConResult mouse_move(int x, int y) {
         std::lock_guard<std::mutex> lock(mutex);
         if (!check_connection()) {
-            return ConResult::ERR_NET_TX;
+            return ConResult::ERR_NET_SEND;
         }
 
         // 设置鼠标数据
@@ -220,7 +217,7 @@ public:
         // 发送数据
         bool success = send_and_receive(sizeof(cmd_head_t) + sizeof(soft_mouse_t));
 
-        return success ? handle_return(&recv_data, &send_data) : ConResult::ERR_NET_TX;
+        return success ? handle_return(&recv_data, &send_data) : ConResult::ERR_NET_SEND;
     }
 
     /**
@@ -231,7 +228,7 @@ public:
     ConResult keyboard_down(KeyboardTable key) {
         std::lock_guard<std::mutex> lock(mutex);
         if (!check_connection()) {
-            return ConResult::ERR_NET_TX;
+            return ConResult::ERR_NET_SEND;
         }
 
         // 处理按键数据
@@ -246,7 +243,7 @@ public:
 
         return send_and_receive(sizeof(cmd_head_t) + sizeof(soft_keyboard_t)) 
             ? handle_return(&recv_data, &send_data) 
-            : ConResult::ERR_NET_TX;
+            : ConResult::ERR_NET_SEND;
     }
 
     /**
@@ -257,7 +254,7 @@ public:
     ConResult keyboard_up(KeyboardTable key) {
         std::lock_guard<std::mutex> lock(mutex);
         if (!check_connection()) {
-            return ConResult::ERR_NET_TX;
+            return ConResult::ERR_NET_SEND;
         }
 
         // 处理按键数据
@@ -272,7 +269,7 @@ public:
 
         return send_and_receive(sizeof(cmd_head_t) + sizeof(soft_keyboard_t)) 
             ? handle_return(&recv_data, &send_data) 
-            : ConResult::ERR_NET_TX;
+            : ConResult::ERR_NET_SEND;
     }
 
     /**
@@ -299,7 +296,7 @@ public:
     ConResult disconnect() {
         std::lock_guard<std::mutex> lock(mutex);
         if (!check_connection()) {
-            return ConResult::ERR_NET_TX;
+            return ConResult::ERR_NET_SEND;
         }
         cleanup_socket();
         return ConResult::SUCCESS;
